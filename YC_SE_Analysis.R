@@ -63,12 +63,9 @@ drug_fusil <- fusil %>%
 
 # filter for drugs in opentarget
 
-opentarget_genes <- opentarget_approved %>%
-  select(prefName, approvedSymbol) %>%
-  unique()
 
 mhra_df <- mhra_se_data %>%
-  left_join(opentarget_genes, by = c ("DRUG" = "prefName")) %>%
+  left_join(drug_gene, by = c ("DRUG" = "prefName")) %>%
   na.omit() %>%
   filter(seriousness != "FALSE")
 
