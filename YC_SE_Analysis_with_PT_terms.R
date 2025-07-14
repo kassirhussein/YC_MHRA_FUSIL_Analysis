@@ -85,6 +85,40 @@ length(unique(mhra_fusil$gene_symbol)) #308 genes
 
 
 
+#  Code to plot percentage of SOC side Effects per Fusil (within each Fusil)--------
+
+
+df_percent <- mhra_fusil %>%
+  group_by(fusil) %>%
+  tally()
+
+mhra_fusil_percent <- mhra_fusil%>%
+  group_by(fusil, SOC_ABBREV) %>% 
+  tally() %>%
+  left_join(df_percent, by = "fusil") %>%
+  mutate(percentage = (n.x/n.y)*100) %>%
+  arrange(desc(percentage))
+
+# 2. Create combined label: fusil + SOC
+mhra_fusil_percent <- mhra_fusil_percent %>%
+  mutate(fusil_SOC = interaction(fusil, SOC_ABBREV))
+
+
+# 3. Order that label by percentage (descending)
+mhra_fusil_percent <- mhra_fusil_percent %>%
+  arrange(desc(percentage)) %>%
+  mutate(fusil_SOC = factor(fusil_SOC, levels = unique(fusil_SOC)))
+
+ggplot(mhra_fusil_percent, aes(x = fusil_SOC, y = percentage, fill = SOC_ABBREV)) +
+  geom_bar(stat = "identity") +
+  labs(title = "SOC_ABBREV % Within Each Fusil (Ordered Bars)",
+       x = "Fusil + SOC",
+       y = "Percentage",
+       fill = "SOC_ABBREV") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
 
 # Count of Individual PT side effects term for each FUSIL and observe their seriousness distribution --------
 
@@ -261,28 +295,7 @@ for (soc in soc_list) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#write.csv(enrichement_soc_df, "C:/Users/HP-ssd/Desktop/SE_enrichements.csv" )
 
 
 # #Compute Enrichment for Each HLGT–FUSIL Pair --------
